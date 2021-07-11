@@ -352,7 +352,7 @@ public class AnalysisMain {
 		int buggyAtt = instances.numAttributes() - 1;
 		AttributeStats as = instances.attributeStats(buggyAtt);
 		
-		double defective = (double) as.nominalCounts[this.positiveIndex];
+		double defective = as.nominalCounts[this.positiveIndex];
 		
 		return 100*(defective/instances.size());
 	}
