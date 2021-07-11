@@ -13,17 +13,15 @@ import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
-import excption.MetricException;
 import logic.dataset.GitQuery;
 import logic.model.AnalyzedClass;
 
-public class LocAdvancedMetric extends Metric {
+public class LocAdvancedMetric extends AdvanceMetric {
 	
-	private GitQuery query;
 	
 	public LocAdvancedMetric(String path, GitQuery query) {
-		super(path);
-		this.query = query;
+		super(path,query);
+		
 	}
 	
 	private List<Integer> getAnalysLines(DiffFormatter df, DiffEntry diff) throws IOException {
@@ -135,7 +133,8 @@ public class LocAdvancedMetric extends Metric {
 		}
 	}
 	
-	private void analysis(AnalyzedClass analyzedClass, List<RevCommit> commits) throws GitAPIException, IOException  {
+	@Override
+	protected void analysis(AnalyzedClass analyzedClass, List<RevCommit> commits) throws GitAPIException, IOException  {
 		List<DiffEntry> entries;
 		List<Integer> resultLines;
 		DiffEntry entryClass = null;
@@ -183,33 +182,9 @@ public class LocAdvancedMetric extends Metric {
 	}
 	
 	
+
 	@Override
-	public void startAnalysis(List<AnalyzedClass> classes) throws MetricException {
-		List<RevCommit> commits;
-		
-		
-		for (AnalyzedClass analyzedClass : classes) {
-			try {
-				//get the revisions for analyzedClass
-				commits = query.getCommitsForAFile(analyzedClass.getPath());
-				if (commits.isEmpty()) {
-					setdefault(analyzedClass);
-					
-				}
-				else {
-					analysis(analyzedClass, commits);
-				}
-				
-						
-			} catch (GitAPIException | IOException e) {
-				throw new MetricException("Error get commits for class: "+ analyzedClass.getPath()+", "+ e.getMessage() , e.getStackTrace());
-			}
-
-
-		}
-	}
-
-	private void setdefault(AnalyzedClass analyzedClass) {
+	protected void setdefault(AnalyzedClass analyzedClass) {
 		
 		//setLocTouched to analyzedClass
 		analyzedClass.setLocTouched(0);

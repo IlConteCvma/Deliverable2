@@ -7,20 +7,20 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import excption.MetricException;
+
 import logic.dataset.GitQuery;
 import logic.model.AnalyzedClass;
 
-public class ChangeSetMetric extends Metric {
+public class ChangeSetMetric extends AdvanceMetric{
 	
-	private GitQuery query;
 	
 	public ChangeSetMetric(String path,GitQuery query) {
-		super(path);
-		this.query = query;
+		super(path,query);
+		
 	}
 
-	private void analysis(AnalyzedClass analyzedClass, List<RevCommit> commits) throws GitAPIException, IOException  {
+	@Override
+	protected void analysis(AnalyzedClass analyzedClass, List<RevCommit> commits) throws GitAPIException, IOException  {
 		int chgSetSize = 0;
 		int maxchgSet = 0;
 		int nr = 0;
@@ -64,32 +64,9 @@ public class ChangeSetMetric extends Metric {
 	
 	
 	
+
 	@Override
-	public void startAnalysis(List<AnalyzedClass> classes) throws MetricException {
-		List<RevCommit> commits;
-		
-		
-		for (AnalyzedClass analyzedClass : classes) {
-			try {
-				//get the revisions for analyzedClass
-				commits = query.getCommitsForAFile(analyzedClass.getPath());
-				if (commits.isEmpty()) {
-					setdefault(analyzedClass);
-				}
-				else {
-					analysis(analyzedClass, commits);
-				}
-						
-			} catch (GitAPIException | IOException e) {
-				throw new MetricException("Error get commits for class: "+ analyzedClass.getPath()+", "+ e.getMessage() , e.getStackTrace());
-			}
-
-
-		}
-
-	}
-
-	private void setdefault(AnalyzedClass analyzedClass) {
+	protected void setdefault(AnalyzedClass analyzedClass) {
 		//set analyzedClass chgSetSize
 		analyzedClass.setChgSetSize(0);
 		//set analyzedClass maxchgSet
